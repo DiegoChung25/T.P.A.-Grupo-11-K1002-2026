@@ -176,7 +176,7 @@ int main(int argc, char const *argv[])
 
         Mozo m;
 
-        int posicionMozo = buscarMozo("mozos.dat", idMozo, m);
+        long posicionMozo = buscarMozo("mozos.dat", idMozo, m);
 
         while(posicionMozo == -1)
         {
@@ -199,7 +199,7 @@ int main(int argc, char const *argv[])
             int codigoProducto;
             cout << "Ingrese un producto" << endl;
             cin >> codigoProducto;
-            int posicionProducto = buscarProducto("inventario.dat", codigoProducto, p);
+            long posicionProducto = buscarProducto("inventario.dat", codigoProducto, p);
             while(posicionProducto == -1)
             {
                 cout << "No se encontró el producto, intente nuevamente: " << endl;
