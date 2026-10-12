@@ -198,7 +198,7 @@ int main(int argc, char const *argv[])
     if(archivo == NULL)
     {
         cout << "No se pudo crear o abrir el archivo del dia." << endl;
-        return; 
+        return 1; 
     }
     
     bool continuar = true;
@@ -207,7 +207,12 @@ int main(int argc, char const *argv[])
 
         int idMozo;
         cout << "Ingrese id del Mozo: " << endl;
-        cin >> idMozo;
+
+        while(!(cin >> idMozo)){
+            cin.clear();
+            cin.ignore(10000,'\n');
+            cout << "Entrada invalida. Ingrese un ID numerico valido: " << endl;
+        }
 
         Mozo m;
 
@@ -216,7 +221,12 @@ int main(int argc, char const *argv[])
         while(posicionMozo == -1)
         {
             cout << "No se encontró un mozo con esa ID, intente nuevamente: " << endl;
-            cin >> idMozo;
+            while(!(cin >> idMozo)){
+                cin.clear();
+                cin.ignore(10000,'\n');
+                cout << "Entrada invalida. Ingrese un ID numerico valido: " << endl;
+            }
+
             posicionMozo = buscarMozo("mozos.dat", idMozo, m);
         }
 
@@ -232,18 +242,33 @@ int main(int argc, char const *argv[])
         {
             Producto p;
             int codigoProducto;
-            cout << "Ingrese un producto" << endl;
-            cin >> codigoProducto;
+
+            cout << "Ingrese codigo de producto" << endl;
+            while(!(cin >> codigoProducto))
+            {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Entrada invalida. Ingrese un codigo numerico valido" << endl;
+            }
             long posicionProducto = buscarProducto("inventario.dat", codigoProducto, p);
             while(posicionProducto == -1)
             {
                 cout << "No se encontró el producto, intente nuevamente: " << endl;
-                cin >> codigoProducto;
+                while(!(cin >> codigoProducto)){
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                    cout << "Entrada invalida. Ingrese un codigo numerico valido" << endl;
+                }
                 posicionProducto = buscarProducto("inventario.dat", codigoProducto, p); 
             }
             int cantidad;
             cout << "Ingrese cantidad: " << endl;
-            cin >> cantidad;
+            while(!(cin>>cantidad) || cantidad <= 0)
+            {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Cantidad invalida. Ingrese un numero mayor a 0" << endl;
+            }
             if(hayStock("inventario.dat", posicionProducto, p, cantidad))
             {
                 
@@ -273,6 +298,7 @@ int main(int argc, char const *argv[])
                 fwrite(&p, sizeof(Producto), 1, inventario);
                 fclose(inventario);
                 }
+                cout << "Venta registrada con exito" << endl;
             } else
             {
                 cout << "Cantidad invalida o stock insuficiente" << endl;
@@ -289,6 +315,8 @@ int main(int argc, char const *argv[])
     fclose(archivo);
 
     ordenarComandas(nombreArchivo);
+
+    cout << "Proceso finalizado con exito" << endl;
 
     return 0;
     
