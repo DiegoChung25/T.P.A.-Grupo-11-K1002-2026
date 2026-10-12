@@ -1,7 +1,8 @@
-using namespace std;
-
 #include <cstring> 
 #include <iostream>
+#include <cstdio>
+
+using namespace std;
 
 const int CORRIMIENTO = 5;
 const float TASA_COMISION = 0.10f;
@@ -42,17 +43,19 @@ float calcularComision(float precio, int cantidad)
     return precio * cantidad * TASA_COMISION;
 }
 
-bool encriptarYValidar(char clave[], int len, Mozo mozo)
+bool encriptarYValidar(char clave[], Mozo mozo)
 {
 
-    char claveEncriptada[len];
+    char claveEncriptada[20];
 
     int i = 0;
-    while (i <= len)
+    while (i < 19 && clave[i] != '\0')
     {
        claveEncriptada[i] = clave[i] + CORRIMIENTO;
        i++;
     }
+    claveEncriptada[i] = '\0';
+
 
     return strcmp(claveEncriptada, mozo.password) == 0; 
        
@@ -65,9 +68,15 @@ void crearNombreArchivo(char fecha[], char nombreArchivo[])
     strcat(nombreArchivo, ".dat");   
 }
 
-long buscarMozo(char nombreArchivo[], int idBuscada, Mozo &m)
+long buscarMozo(const char nombreArchivo[], int idBuscada, Mozo &m)
 {
     FILE* f = fopen(nombreArchivo, "rb");
+
+    if(f == NULL)
+    {
+        cout << "No se pudo abrir el archivo de mozos." << endl;
+        return -1;
+    }
 
     fseek(f, 0, SEEK_END);
     long n = ftell(f) / sizeof(Mozo);
@@ -88,9 +97,15 @@ long buscarMozo(char nombreArchivo[], int idBuscada, Mozo &m)
 
 }
 
-long buscarProducto(char nombreArchivo[], int codigo, Producto &p)
+long buscarProducto(const char nombreArchivo[], int codigo, Producto &p)
 {
     FILE* f = fopen(nombreArchivo, "rb");
+
+    if(f == NULL)
+    {
+        cout << "No se pudo abrir el archivo de productos." << endl;
+        return -1;
+    }
 
     fseek(f, 0, SEEK_END);
     long n = ftell(f) / sizeof(Producto);
@@ -109,20 +124,36 @@ long buscarProducto(char nombreArchivo[], int codigo, Producto &p)
     return pos;
 }
 
-bool hayStock(char nombreArchivo[], long pos, Producto &p, int cantidad)
+bool hayStock(const char nombreArchivo[], long pos, Producto &p, int cantidad)
 {
+    if(cantidad <= 0) return false;
+
     FILE* f = fopen(nombreArchivo, "rb");
+
+    if(f == NULL)
+    {
+        cout << "No se pudo abrir el inventario" << endl;
+        return false;
+    }
+
     fseek(f, pos * sizeof(Producto), SEEK_SET);
     fread(&p, sizeof(Producto), 1, f);
+
     fclose(f);
 
     return cantidad <= p.stockActual;
 }
 
-void ordenarComandas(char nombreArchivo[])
+void ordenarComandas(const char nombreArchivo[])
 {
 
     FILE* f = fopen(nombreArchivo, "rb+");
+
+    if(f == NULL)
+    {
+        cout << "No se pudo abrir el archivo de comandas" << endl;
+        return;
+    }
 
     fseek(f, 0, SEEK_END);
     long cantidadComandas = ftell(f) / sizeof(Comanda);
@@ -165,6 +196,12 @@ int main(int argc, char const *argv[])
     crearNombreArchivo(fecha, nombreArchivo);
 
     FILE* archivo = fopen(nombreArchivo, "ab+");
+
+    if(archivo == NULL)
+    {
+        cout << "No se pudo crear o abrir el archivo del dia." << endl;
+        return 1; 
+    }
     
     bool continuar = true;
 
@@ -172,7 +209,12 @@ int main(int argc, char const *argv[])
 
         int idMozo;
         cout << "Ingrese id del Mozo: " << endl;
-        cin >> idMozo;
+
+        while(!(cin >> idMozo)){
+            cin.clear();
+            cin.ignore(10000,'\n');
+            cout << "Entrada invalida. Ingrese un ID numerico valido: " << endl;
+        }
 
         Mozo m;
 
@@ -181,58 +223,97 @@ int main(int argc, char const *argv[])
         while(posicionMozo == -1)
         {
             cout << "No se encontró un mozo con esa ID, intente nuevamente: " << endl;
-            cin >> idMozo;
+            while(!(cin >> idMozo)){
+                cin.clear();
+                cin.ignore(10000,'\n');
+                cout << "Entrada invalida. Ingrese un ID numerico valido: " << endl;
+            }
+
             posicionMozo = buscarMozo("mozos.dat", idMozo, m);
         }
 
-        char clave[20];
-        cout << "Ingrese la clave: " << endl;
-        cin >> clave;
-
-        if(!encriptarYValidar(clave, 20, m))
+        bool claveValida = false;
+        while (!claveValida)
         {
-            cout << "Clave incorrecta" << endl;
+            char clave[20];
+            cout << "Ingrese la clave: " << endl;
+            cin >> clave;
+
+            if(!encriptarYValidar(clave, m))
+            {
+                cout << "Clave incorrecta. Intente nuevamente." << endl;
+            }
+            else
+            {
+                claveValida = true;
+            }
         }
-        else
+        
+        Producto p;
+        int codigoProducto;
+
+        cout << "Ingrese codigo de producto" << endl;
+        while(!(cin >> codigoProducto))
         {
-            Producto p;
-            int codigoProducto;
-            cout << "Ingrese un producto" << endl;
-            cin >> codigoProducto;
-            long posicionProducto = buscarProducto("inventario.dat", codigoProducto, p);
-            while(posicionProducto == -1)
-            {
-                cout << "No se encontró el producto, intente nuevamente: " << endl;
-                cin >> codigoProducto;
-                posicionProducto = buscarProducto("inventario.dat", codigoProducto, p); 
-            }
-            int cantidad;
-            cout << "Ingrese cantidad: " << endl;
-            cin >> cantidad;
-            if(hayStock("inventario.dat", posicionProducto, p, cantidad))
-            {
-                
-                float comision = calcularComision(p.precio, cantidad);
-                Comanda c;
-                c.idMozo = idMozo;
-                c.codigoProducto = codigoProducto;
-                c.cantidad = cantidad;
-                c.comision = comision;
-
-                //Guarda la comanda al final del archivo del día
-                fseek(archivo, 0, SEEK_END);
-                fwrite(&c, sizeof(Comanda), 1, archivo);
-
-                //Actualiza el stock del producto
-                p.stockActual -= cantidad;
-
-                FILE* inventario = fopen("inventario.dat", "rb+");
-                fseek(inventario, posicionProducto * sizeof(Producto), SEEK_SET);
-                fwrite(&p, sizeof(Producto), 1, inventario);
-                fclose(inventario);
-            }
-
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Entrada invalida. Ingrese un codigo numerico valido" << endl;
         }
+        long posicionProducto = buscarProducto("inventario.dat", codigoProducto, p);
+        while(posicionProducto == -1)
+        {
+            cout << "No se encontró el producto, intente nuevamente: " << endl;
+            while(!(cin >> codigoProducto)){
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Entrada invalida. Ingrese un codigo numerico valido" << endl;
+            }
+            posicionProducto = buscarProducto("inventario.dat", codigoProducto, p); 
+        }
+        int cantidad;
+        cout << "Ingrese cantidad: " << endl;
+        while(!(cin>>cantidad) || cantidad <= 0)
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Cantidad invalida. Ingrese un numero mayor a 0" << endl;
+        }
+        if(hayStock("inventario.dat", posicionProducto, p, cantidad))
+        {
+            
+            float comision = calcularComision(p.precio, cantidad);
+            Comanda c;
+            c.idMozo = idMozo;
+            c.codigoProducto = codigoProducto;
+            c.cantidad = cantidad;
+            c.comision = comision;
+
+            //Guarda la comanda al final del archivo del día
+            fseek(archivo, 0, SEEK_END);
+            fwrite(&c, sizeof(Comanda), 1, archivo);
+
+            //Actualiza el stock del producto
+            p.stockActual -= cantidad;
+
+            FILE* inventario = fopen("inventario.dat", "rb+");
+
+            if(inventario == NULL)
+            {
+                cout << "No se pudo abrir el inventario" << endl;
+            }
+            else
+            {
+            fseek(inventario, posicionProducto * sizeof(Producto), SEEK_SET);
+            fwrite(&p, sizeof(Producto), 1, inventario);
+            fclose(inventario);
+            }
+            cout << "Venta registrada con exito" << endl;
+        } else
+        {
+            cout << "Cantidad invalida o stock insuficiente" << endl;
+        }
+
+        
         char input;
         cout << "Ingrese '1' para cargar otra venta, presione cualquier otra tecla para terminar la operación" << endl;
         cin >> input;
@@ -243,6 +324,8 @@ int main(int argc, char const *argv[])
     fclose(archivo);
 
     ordenarComandas(nombreArchivo);
+
+    cout << "Proceso finalizado con exito" << endl;
 
     return 0;
     
