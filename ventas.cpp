@@ -232,81 +232,88 @@ int main(int argc, char const *argv[])
             posicionMozo = buscarMozo("mozos.dat", idMozo, m);
         }
 
-        char clave[20];
-        cout << "Ingrese la clave: " << endl;
-        cin >> clave;
-
-        if(!encriptarYValidar(clave, 20, m))
+        bool claveValida = false;
+        while (!claveValida)
         {
-            cout << "Clave incorrecta" << endl;
-        }
-        else
-        {
-            Producto p;
-            int codigoProducto;
+            char clave[20];
+            cout << "Ingrese la clave: " << endl;
+            cin >> clave;
 
-            cout << "Ingrese codigo de producto" << endl;
-            while(!(cin >> codigoProducto))
+            if(!encriptarYValidar(clave, 20, m))
             {
+                cout << "Clave incorrecta. Intente nuevamente." << endl;
+            }
+            else
+            {
+                claveValida = true;
+            }
+        }
+        
+        Producto p;
+        int codigoProducto;
+
+        cout << "Ingrese codigo de producto" << endl;
+        while(!(cin >> codigoProducto))
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Entrada invalida. Ingrese un codigo numerico valido" << endl;
+        }
+        long posicionProducto = buscarProducto("inventario.dat", codigoProducto, p);
+        while(posicionProducto == -1)
+        {
+            cout << "No se encontró el producto, intente nuevamente: " << endl;
+            while(!(cin >> codigoProducto)){
                 cin.clear();
                 cin.ignore(10000, '\n');
                 cout << "Entrada invalida. Ingrese un codigo numerico valido" << endl;
             }
-            long posicionProducto = buscarProducto("inventario.dat", codigoProducto, p);
-            while(posicionProducto == -1)
-            {
-                cout << "No se encontró el producto, intente nuevamente: " << endl;
-                while(!(cin >> codigoProducto)){
-                    cin.clear();
-                    cin.ignore(10000, '\n');
-                    cout << "Entrada invalida. Ingrese un codigo numerico valido" << endl;
-                }
-                posicionProducto = buscarProducto("inventario.dat", codigoProducto, p); 
-            }
-            int cantidad;
-            cout << "Ingrese cantidad: " << endl;
-            while(!(cin>>cantidad) || cantidad <= 0)
-            {
-                cin.clear();
-                cin.ignore(10000, '\n');
-                cout << "Cantidad invalida. Ingrese un numero mayor a 0" << endl;
-            }
-            if(hayStock("inventario.dat", posicionProducto, p, cantidad))
-            {
-                
-                float comision = calcularComision(p.precio, cantidad);
-                Comanda c;
-                c.idMozo = idMozo;
-                c.codigoProducto = codigoProducto;
-                c.cantidad = cantidad;
-                c.comision = comision;
-
-                //Guarda la comanda al final del archivo del día
-                fseek(archivo, 0, SEEK_END);
-                fwrite(&c, sizeof(Comanda), 1, archivo);
-
-                //Actualiza el stock del producto
-                p.stockActual -= cantidad;
-
-                FILE* inventario = fopen("inventario.dat", "rb+");
-
-                if(inventario == NULL)
-                {
-                    cout << "No se pudo abrir el inventario" << endl;
-                }
-                else
-                {
-                fseek(inventario, posicionProducto * sizeof(Producto), SEEK_SET);
-                fwrite(&p, sizeof(Producto), 1, inventario);
-                fclose(inventario);
-                }
-                cout << "Venta registrada con exito" << endl;
-            } else
-            {
-                cout << "Cantidad invalida o stock insuficiente" << endl;
-            }
-
+            posicionProducto = buscarProducto("inventario.dat", codigoProducto, p); 
         }
+        int cantidad;
+        cout << "Ingrese cantidad: " << endl;
+        while(!(cin>>cantidad) || cantidad <= 0)
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Cantidad invalida. Ingrese un numero mayor a 0" << endl;
+        }
+        if(hayStock("inventario.dat", posicionProducto, p, cantidad))
+        {
+            
+            float comision = calcularComision(p.precio, cantidad);
+            Comanda c;
+            c.idMozo = idMozo;
+            c.codigoProducto = codigoProducto;
+            c.cantidad = cantidad;
+            c.comision = comision;
+
+            //Guarda la comanda al final del archivo del día
+            fseek(archivo, 0, SEEK_END);
+            fwrite(&c, sizeof(Comanda), 1, archivo);
+
+            //Actualiza el stock del producto
+            p.stockActual -= cantidad;
+
+            FILE* inventario = fopen("inventario.dat", "rb+");
+
+            if(inventario == NULL)
+            {
+                cout << "No se pudo abrir el inventario" << endl;
+            }
+            else
+            {
+            fseek(inventario, posicionProducto * sizeof(Producto), SEEK_SET);
+            fwrite(&p, sizeof(Producto), 1, inventario);
+            fclose(inventario);
+            }
+            cout << "Venta registrada con exito" << endl;
+        } else
+        {
+            cout << "Cantidad invalida o stock insuficiente" << endl;
+        }
+
+        
         char input;
         cout << "Ingrese '1' para cargar otra venta, presione cualquier otra tecla para terminar la operación" << endl;
         cin >> input;
