@@ -49,11 +49,13 @@ bool encriptarYValidar(char clave[], int len, Mozo mozo)
     char claveEncriptada[len];
 
     int i = 0;
-    while (i < len)
+    while (i < len && clave[i] != '\0')
     {
        claveEncriptada[i] = clave[i] + CORRIMIENTO;
        i++;
     }
+    claveEncriptada[i] = '\0';
+
 
     return strcmp(claveEncriptada, mozo.password) == 0; 
        
