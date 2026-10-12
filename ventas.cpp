@@ -48,7 +48,7 @@ bool encriptarYValidar(char clave[], int len, Mozo mozo)
     char claveEncriptada[len];
 
     int i = 0;
-    while (i <= len)
+    while (i < len)
     {
        claveEncriptada[i] = clave[i] + CORRIMIENTO;
        i++;
