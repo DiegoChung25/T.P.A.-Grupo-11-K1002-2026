@@ -112,9 +112,19 @@ long buscarProducto(char nombreArchivo[], int codigo, Producto &p)
 
 bool hayStock(char nombreArchivo[], long pos, Producto &p, int cantidad)
 {
+    if(cantidad <= 0) return false;
+
     FILE* f = fopen(nombreArchivo, "rb");
+
+    if(f == NULL)
+    {
+        cout << "No se pudo abrir el inventario" << endl;
+        return false;
+    }
+
     fseek(f, pos * sizeof(Producto), SEEK_SET);
     fread(&p, sizeof(Producto), 1, f);
+    
     fclose(f);
 
     return cantidad <= p.stockActual;
