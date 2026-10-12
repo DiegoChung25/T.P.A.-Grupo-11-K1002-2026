@@ -124,7 +124,7 @@ bool hayStock(char nombreArchivo[], long pos, Producto &p, int cantidad)
 
     fseek(f, pos * sizeof(Producto), SEEK_SET);
     fread(&p, sizeof(Producto), 1, f);
-    
+
     fclose(f);
 
     return cantidad <= p.stockActual;
@@ -134,6 +134,12 @@ void ordenarComandas(char nombreArchivo[])
 {
 
     FILE* f = fopen(nombreArchivo, "rb+");
+
+    if(f == NULL)
+    {
+        cout << "No se pudo abrir el archivo de comandas" << endl;
+        return;
+    }
 
     fseek(f, 0, SEEK_END);
     long cantidadComandas = ftell(f) / sizeof(Comanda);
@@ -241,6 +247,9 @@ int main(int argc, char const *argv[])
                 fseek(inventario, posicionProducto * sizeof(Producto), SEEK_SET);
                 fwrite(&p, sizeof(Producto), 1, inventario);
                 fclose(inventario);
+            } else
+            {
+                cout << "Cantidad invalida o stock insuficiente" << endl;
             }
 
         }
