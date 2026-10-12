@@ -43,13 +43,13 @@ float calcularComision(float precio, int cantidad)
     return precio * cantidad * TASA_COMISION;
 }
 
-bool encriptarYValidar(char clave[], int len, Mozo mozo)
+bool encriptarYValidar(char clave[], Mozo mozo)
 {
 
-    char claveEncriptada[len];
+    char claveEncriptada[20];
 
     int i = 0;
-    while (i < len && clave[i] != '\0')
+    while (i < 19 && clave[i] != '\0')
     {
        claveEncriptada[i] = clave[i] + CORRIMIENTO;
        i++;
@@ -239,7 +239,7 @@ int main(int argc, char const *argv[])
             cout << "Ingrese la clave: " << endl;
             cin >> clave;
 
-            if(!encriptarYValidar(clave, 20, m))
+            if(!encriptarYValidar(clave, m))
             {
                 cout << "Clave incorrecta. Intente nuevamente." << endl;
             }
