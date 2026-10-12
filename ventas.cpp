@@ -1,7 +1,8 @@
-using namespace std;
-
 #include <cstring> 
 #include <iostream>
+#include <cstdio>
+
+using namespace std;
 
 const int CORRIMIENTO = 5;
 const float TASA_COMISION = 0.10f;
