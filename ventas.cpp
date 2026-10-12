@@ -66,7 +66,7 @@ void crearNombreArchivo(char fecha[], char nombreArchivo[])
     strcat(nombreArchivo, ".dat");   
 }
 
-long buscarMozo(char nombreArchivo[], int idBuscada, Mozo &m)
+long buscarMozo(const char nombreArchivo[], int idBuscada, Mozo &m)
 {
     FILE* f = fopen(nombreArchivo, "rb");
 
@@ -95,7 +95,7 @@ long buscarMozo(char nombreArchivo[], int idBuscada, Mozo &m)
 
 }
 
-long buscarProducto(char nombreArchivo[], int codigo, Producto &p)
+long buscarProducto(const char nombreArchivo[], int codigo, Producto &p)
 {
     FILE* f = fopen(nombreArchivo, "rb");
 
@@ -122,7 +122,7 @@ long buscarProducto(char nombreArchivo[], int codigo, Producto &p)
     return pos;
 }
 
-bool hayStock(char nombreArchivo[], long pos, Producto &p, int cantidad)
+bool hayStock(const char nombreArchivo[], long pos, Producto &p, int cantidad)
 {
     if(cantidad <= 0) return false;
 
@@ -142,7 +142,7 @@ bool hayStock(char nombreArchivo[], long pos, Producto &p, int cantidad)
     return cantidad <= p.stockActual;
 }
 
-void ordenarComandas(char nombreArchivo[])
+void ordenarComandas(const char nombreArchivo[])
 {
 
     FILE* f = fopen(nombreArchivo, "rb+");
@@ -198,7 +198,7 @@ int main(int argc, char const *argv[])
     if(archivo == NULL)
     {
         cout << "No se pudo crear o abrir el archivo del dia." << endl;
-        return 1; 
+        return; 
     }
     
     bool continuar = true;
