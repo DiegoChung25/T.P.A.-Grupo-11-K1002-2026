@@ -70,6 +70,12 @@ long buscarMozo(char nombreArchivo[], int idBuscada, Mozo &m)
 {
     FILE* f = fopen(nombreArchivo, "rb");
 
+    if(f == NULL)
+    {
+        cout << "No se pudo abrir el archivo de mozos." << endl;
+        return -1;
+    }
+
     fseek(f, 0, SEEK_END);
     long n = ftell(f) / sizeof(Mozo);
     long primero = 0, ultimo = n - 1, pos = -1;
@@ -92,6 +98,12 @@ long buscarMozo(char nombreArchivo[], int idBuscada, Mozo &m)
 long buscarProducto(char nombreArchivo[], int codigo, Producto &p)
 {
     FILE* f = fopen(nombreArchivo, "rb");
+
+    if(f == NULL)
+    {
+        cout << "No se pudo abrir el archivo de productos." << endl;
+        return -1;
+    }
 
     fseek(f, 0, SEEK_END);
     long n = ftell(f) / sizeof(Producto);
@@ -182,6 +194,12 @@ int main(int argc, char const *argv[])
     crearNombreArchivo(fecha, nombreArchivo);
 
     FILE* archivo = fopen(nombreArchivo, "ab+");
+
+    if(archivo == NULL)
+    {
+        cout << "No se pudo crear o abrir el archivo del dia." << endl;
+        return 1; 
+    }
     
     bool continuar = true;
 
@@ -244,9 +262,17 @@ int main(int argc, char const *argv[])
                 p.stockActual -= cantidad;
 
                 FILE* inventario = fopen("inventario.dat", "rb+");
+
+                if(inventario == NULL)
+                {
+                    cout << "No se pudo abrir el inventario" << endl;
+                }
+                else
+                {
                 fseek(inventario, posicionProducto * sizeof(Producto), SEEK_SET);
                 fwrite(&p, sizeof(Producto), 1, inventario);
                 fclose(inventario);
+                }
             } else
             {
                 cout << "Cantidad invalida o stock insuficiente" << endl;
