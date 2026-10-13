@@ -3,7 +3,7 @@
 Trabajo Práctico grupal de **Algoritmos y Estructuras de Datos** (UTN FRBA) —
 unidad de **archivos binarios en C/C++**.
 
-> **Grupo:** _(completar: número de grupo)_ <br>
+> **Grupo:** 11 <br>
 > **Integrantes:** _Santiago Fino - sfino1896_ <br>
 > _Diego Chung - DiegoChung25_ <br>
 > _Julián Zaffino - JulianZaffino_ <br>
