@@ -48,24 +48,22 @@ int main (){
     while (fread(&registro, sizeof(comanda), 1, f) == 1) {
         int mozoActual = registro.idMozo;
 
-        if (mozoActual >= 0 && mozoActual < MAX_MOZOS) {
-            mozoP[mozoActual] += registro.cantidad;  //ventas
+        if (mozoActual >= 1 && mozoActual <= MAX_MOZOS) {
+            mozoP[mozoActual - 1] += registro.cantidad;  //ventas
             
-            mozoC[mozoActual] += registro.comision;  //paga comision
+            mozoC[mozoActual - 1] += registro.comision;  //paga comision
         }
 
         total += registro.cantidad;
     }
-	cin.ignore();
     fclose(f);
     cout << "============= REPORTES DE VENTAS =============" << endl;
     for (int i = 0; i < MAX_MOZOS; i++) {
         if (mozoP[i] > 0) {
-            cout << "Mozo ID: " << i << endl;
+            cout << "Mozo ID: " << i + 1<< endl;
             cout << "Productos vendidos: " << mozoP[i] << endl;
             cout << "Comision a pagar: $" << mozoC[i] << endl;
             cout << "--------------------------------------------" << endl;
-            cin.get();
         }
     }
 
