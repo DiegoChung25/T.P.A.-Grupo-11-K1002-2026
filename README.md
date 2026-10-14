@@ -7,7 +7,7 @@ unidad de **archivos binarios en C/C++**.
 > **Integrantes:** _Santiago Fino - sfino1896_ <br>
 > _Diego Chung - DiegoChung25_ <br>
 > _Julián Zaffino - JulianZaffino_ <br>
-> _Grigor Ghazaryan -_
+> _Grigor Ghazaryan - Grigor20-code_
 
 
 ## Cómo trabajar
